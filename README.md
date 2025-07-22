@@ -1,1 +1,1 @@
-A USLOSS project I did for CSC452 at the UofA. Failed phase 1 but thankfully, through a lot of long nights, the other three phases I passed. One day I should finish phase 1 though I'm a bit rusty with C#.
+A USLOSS project I did for CSC452 at the UofA. Failed phase 1 but thankfully, through a lot of long nights, the other three phases I passed. One day I should finish phase 1 though I'm a bit rusty with C.
