@@ -1,0 +1,73 @@
+/* Counting Semaphore test */
+
+#include <usyscall.h>
+#include <libuser.h>
+#include <stdio.h>
+#include <usloss.h>
+#include <phase1.h>
+#include <phase2.h>
+
+int Child1(char *);
+int Child2(char *);
+
+int sem1;
+
+int start3(char *arg)
+{
+    int result;
+    int pid;
+    int status;
+
+    printf("start3(): started\n");
+    result = SemCreate(3, &sem1);
+    SemP(sem1);
+    printf("start3(): After P in the CS\n");
+    Spawn("Child1", Child1, "Child1", USLOSS_MIN_STACK, 2, &pid);
+    printf("start3(): spawn %d\n", pid);
+    Spawn("Child2", Child2, "Child2", USLOSS_MIN_STACK, 3, &pid);
+    printf("start3(): spawn %d\n", pid);
+    SemV(sem1);
+    printf("start3(): After V -- may appear before: Child1(): After P attempt #3\n");
+    Wait(&pid, &status);
+    printf("start3(): status of quit child = %d\n",status);
+    Wait(&pid, &status);
+    printf("start3(): status of quit child = %d\n",status);
+    printf("start3(): Parent done\n");
+    Terminate(8);
+
+    return 0;
+} /* start3 */
+
+
+int Child1(char *arg) 
+{
+    int i;
+
+    console("%s(): starting\n", arg);
+    for (i = 0; i < 5; i++) {
+       SemP(sem1);
+       if (i == 3)
+          printf("%s(): After P attempt #3 -- may appear before: start3(): After V\n", arg);
+       else
+          printf("%s(): After P attempt #%d\n", arg, i);
+    }
+    console("%s(): done\n", arg);
+    Terminate(9);
+
+    return 0;
+} /* Child1 */
+
+
+int Child2(char *arg) 
+{
+    int i;
+
+    printf("%s(): starting\n", arg);
+    for (i = 0; i < 5; i++) {
+        SemV(sem1);
+        printf("%s(): After V attempt #%d\n", arg, i);
+    }
+    console("%s(): done\n", arg);
+    Terminate(10);
+    return 0;
+} /* Child2 */
